@@ -41,3 +41,13 @@ response.json
 .env
 .env.local
 .env.*.local
+
+# Deployment & Build
+.vercel/
+.vercel
+node_modules/
+.next/
+
+# IDE files
+*.bak
+

@@ -561,7 +561,16 @@
     });
 
     // Backend base (updateable) - use 127.0.0.1 to avoid occasional localhost resolution issues
-    const BACKEND_BASE = window.BACKEND_BASE || 'http://127.0.0.1:8000';
+    // Detect environment: Vercel, localhost, or custom
+    let BACKEND_BASE = window.BACKEND_BASE;
+    if (!BACKEND_BASE) {
+      if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
+        BACKEND_BASE = 'http://127.0.0.1:8000';
+      } else {
+        // Vercel or production: use same domain with /api prefix
+        BACKEND_BASE = window.location.origin;
+      }
+    }
 
     dropZone.addEventListener("dragover", (e) => {
       e.preventDefault();
@@ -582,7 +591,7 @@
 
     async function checkBackend() {
       try {
-        const res = await fetch(`${BACKEND_BASE}/health`, { method: 'GET' });
+        const res = await fetch(`${BACKEND_BASE}/api/health`, { method: 'GET' });
         if (!res.ok) throw new Error(`Health check failed: ${res.status} ${res.statusText}`);
         return true;
       } catch (err) {
@@ -594,7 +603,7 @@
     async function updateBackendStatus() {
       const el = document.getElementById('backendStatus');
       try {
-        const res = await fetch(`${BACKEND_BASE}/health`, { method: 'GET' });
+        const res = await fetch(`${BACKEND_BASE}/api/health`, { method: 'GET' });
         if (res.ok) {
           el.textContent = 'Backend: healthy';
           el.style.color = '#66cc88';
@@ -632,7 +641,7 @@
         formData.append("file", file);
 
         try {
-          const res = await fetch(`${BACKEND_BASE}/analyze-file`, {
+          const res = await fetch(`${BACKEND_BASE}/api/analyze`, {
             method: "POST",
             body: formData
           });
@@ -672,7 +681,7 @@
         files.forEach(file => formData.append("files", file));
 
         try {
-          const res = await fetch(`${BACKEND_BASE}/analyze-multiple`, {
+          const res = await fetch(`${BACKEND_BASE}/api/analyze`, {
             method: "POST",
             body: formData
           });
