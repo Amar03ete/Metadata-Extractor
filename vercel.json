@@ -1,7 +1,5 @@
 {
-  "buildCommand": "pip install -r requirements.txt",
-  "framework": "python",
-  "python": "3.12",
+  "buildCommand": "pip install -r backend/requirements.txt",
   "env": {
     "PYTHONUNBUFFERED": "1"
   },
