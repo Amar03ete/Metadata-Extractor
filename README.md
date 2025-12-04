@@ -1,7 +1,7 @@
 # MetaForensic  
 Advanced Metadata & Forensic Analysis Tool
 
-##Filed named as MetaForensic - Advanced Metadata Analysis demo.pdf contains the preview of the output ...
+## Filed named as MetaForensic - Advanced Metadata Analysis demo.pdf contains the preview of the output ...
 
 ---
 
