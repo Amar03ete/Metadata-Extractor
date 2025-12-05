@@ -138,5 +138,3 @@ python backend/main.py
 ```
 
 ---
-
-If you want this **even shorter**, or want a **header with a logo + badges**, say the word.
