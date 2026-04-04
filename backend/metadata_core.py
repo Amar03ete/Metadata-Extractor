@@ -11,7 +11,7 @@ from pathlib import Path
 from typing import Dict, Any, Optional
 import psutil
 
-# Optional Unix-only utilities (pwd/grp) - guard their usage on Windows
+
 try:
     import pwd
     import grp
@@ -26,7 +26,7 @@ try:
 except ImportError:
     HAS_DOCX = False
 
-# PDF libraries (optional)
+
 try:
     import PyPDF2
     HAS_PDF = True
@@ -57,7 +57,7 @@ def extract_filesystem_metadata(file_path: str) -> Dict[str, Any]:
     stat_info = os.stat(file_path)
     path_obj = Path(file_path)
     
-    # Convert timestamps with timezone awareness
+
     if platform.system() == 'Windows':
         created_dt = datetime.fromtimestamp(stat_info.st_ctime)
     else:
@@ -69,7 +69,7 @@ def extract_filesystem_metadata(file_path: str) -> Dict[str, Any]:
     modified_dt = datetime.fromtimestamp(stat_info.st_mtime)
     accessed_dt = datetime.fromtimestamp(stat_info.st_atime)
     
-    # Add timezone info to timestamps
+
     local_tz = datetime.now(timezone.utc).astimezone().tzinfo
     if local_tz:
         created_dt = created_dt.replace(tzinfo=local_tz)
@@ -79,10 +79,10 @@ def extract_filesystem_metadata(file_path: str) -> Dict[str, Any]:
     tz_offset = local_tz.utcoffset(datetime.now()) if local_tz else None
     tz_name = local_tz.tzname(datetime.now()) if local_tz else "Unknown"
     
-    # Calculate file hashes
+
     file_hashes = calculate_file_hashes(file_path)
     
-    # Get owner/group names when available (Unix-like systems)
+
     owner_name = "Unknown"
     group_name = "Unknown"
     if HAS_UNIX_UTILS:
@@ -93,11 +93,11 @@ def extract_filesystem_metadata(file_path: str) -> Dict[str, Any]:
             owner_name = str(stat_info.st_uid)
             group_name = str(stat_info.st_gid)
     else:
-        # On Windows or when pwd/grp not available, keep numeric IDs as fallback
+        
         owner_name = str(stat_info.st_uid)
         group_name = str(stat_info.st_gid)
     
-    # Determine MIME type
+    
     mime_type = "application/octet-stream"
     ext = path_obj.suffix.lower()
     mime_types = {
@@ -255,7 +255,7 @@ def extract_pdf_metadata(file_path: str) -> Dict[str, Any]:
     if not HAS_PDF and not pikepdf:
         return {"pdf_error": "PDF libraries not installed"}
     
-    # Try PyPDF2 first if available
+    
     if PyPDF2:
         try:
             with open(file_path, 'rb') as f:
