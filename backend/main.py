@@ -24,10 +24,10 @@ app = FastAPI(
     version="1.0.0"
 )
 
-# Allow frontend to call backend
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # In production, specify your frontend domain
+    allow_origins=["*"],  
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -47,7 +47,7 @@ async def root():
 @app.get("/health")
 async def health():
     """Health check endpoint."""
-    # Run quick health checks and return detailed status
+   
     def check_module(name):
         try:
             importlib.import_module(name)
@@ -56,10 +56,9 @@ async def health():
             return {"ok": False, "error": str(e)}
 
     checks = {}
-    # Python runtime
+    
     checks['python_version'] = {"version": platform.python_version(), "ok": True}
 
-    # Important optional modules
     module_names = {
         'PyPDF2': 'PyPDF2',
         'pikepdf': 'pikepdf',
@@ -73,14 +72,13 @@ async def health():
     for friendly, mod in module_names.items():
         checks[friendly] = check_module(mod)
 
-    # Disk usage
+    
     try:
         total, used, free = shutil.disk_usage(os.getcwd())
         checks['disk_usage'] = {"total": total, "used": used, "free": free}
     except Exception as e:
         checks['disk_usage'] = {"error": str(e)}
 
-    # Temp file write test
     tmp_ok = True
     tmp_error = None
     try:
@@ -92,10 +90,10 @@ async def health():
         tmp_error = str(e)
     checks['temp_write'] = {"ok": tmp_ok, "error": tmp_error}
 
-    # Uptime (approx)
+    
     checks['server_time'] = {"now": time.time()}
 
-    # Overall status
+    
     overall_ok = all(v.get('ok', True) for k, v in checks.items() if isinstance(v, dict) and 'ok' in v)
     status = "healthy" if overall_ok else "degraded"
 
@@ -118,11 +116,11 @@ async def analyze_file(file: UploadFile = File(...)):
     tmp_path = None
     
     try:
-        # Validate file
+        
         if not file.filename:
             raise HTTPException(status_code=400, detail="No file provided")
         
-        # Save temporarily
+        
         suffix = os.path.splitext(file.filename)[1]
         with tempfile.NamedTemporaryFile(delete=False, suffix=suffix) as tmp:
             content = await file.read()
@@ -131,7 +129,7 @@ async def analyze_file(file: UploadFile = File(...)):
             tmp.write(content)
             tmp_path = tmp.name
         
-        # Extract metadata with timeout in a thread to avoid blocking the event loop
+        
         loop = asyncio.get_running_loop()
         executor = ThreadPoolExecutor(max_workers=1)
         try:
@@ -147,7 +145,7 @@ async def analyze_file(file: UploadFile = File(...)):
                 detail=f"Metadata extraction failed: {str(e)}"
             )
 
-        # Forensic analysis with short timeout
+       
         try:
             flags = await asyncio.wait_for(
                 loop.run_in_executor(executor, lambda: analyze_single_metadata(base_metadata)),
@@ -176,7 +174,7 @@ async def analyze_file(file: UploadFile = File(...)):
             except Exception:
                 pass
         
-        # Organize response
+        
         response = {
             "filename": file.filename,
             "file_size": len(content),
@@ -286,12 +284,11 @@ async def analyze_file(file: UploadFile = File(...)):
             content={"error": "Internal server error", "details": error_detail}
         )
     finally:
-        # Clean up temporary file
         if tmp_path and os.path.exists(tmp_path):
             try:
                 os.remove(tmp_path)
             except Exception:
-                pass  # Best effort cleanup
+                pass  
 
 
 @app.post("/analyze-multiple")
